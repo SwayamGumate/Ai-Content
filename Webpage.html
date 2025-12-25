@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N8N AI Content Generator Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        .result-header {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .result-content {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error {
+            background: #fee;
+            border-left-color: #f44336;
+        }
+
+        .success {
+            background: #efe;
+            border-left-color: #4caf50;
+        }
+
+        .metadata {
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🤖 AI Content Generator</h1>
+        <p class="subtitle">Test your N8N webhook - Generate AI content instantly</p>
+
+        <form id="contentForm">
+            <div class="form-group">
+                <label for="topic">📝 Topic *</label>
+                <input type="text" id="topic" placeholder="e.g., Benefits of AI in Healthcare" required
+                    value="Benefits of AI in Healthcare">
+            </div>
+
+            <div class="form-group">
+                <label for="contentType">📄 Content Type</label>
+                <select id="contentType">
+                    <option value="blog post">Blog Post</option>
+                    <option value="article">Article</option>
+                    <option value="social media post">Social Media Post</option>
+                    <option value="email">Email</option>
+                    <option value="product description">Product Description</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="tone">🎭 Tone</label>
+                <select id="tone">
+                    <option value="professional">Professional</option>
+                    <option value="casual">Casual</option>
+                    <option value="technical">Technical</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="persuasive">Persuasive</option>
+                    <option value="informative">Informative</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="wordCount">📊 Word Count</label>
+                <input type="number" id="wordCount" value="500" min="50" max="2000" step="50">
+            </div>
+
+            <div class="form-group">
+                <label for="model">🧠 AI Model</label>
+                <select id="model">
+                    <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Best Quality)</option>
+                    <option value="anthropic/claude-3-haiku">Claude 3 Haiku (Fast & Cheap)</option>
+                    <option value="openai/gpt-4-turbo">GPT-4 Turbo</option>
+                    <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo (Fastest)</option>
+                </select>
+            </div>
+
+            <button type="submit" id="generateBtn">✨ Generate Content</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating content... This may take 10-30 seconds</p>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="result-header" id="resultHeader">📄 Generated Content</div>
+            <div class="result-content" id="result"></div>
+            <div class="metadata" id="metadata"></div>
+        </div>
+    </div>
+
+    <script>
+        const webhookUrl = 'https://ishikabari.app.n8n.cloud/webhook-test/ai-content-generation';
+
+        document.getElementById('contentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                topic: document.getElementById('topic').value,
+                contentType: document.getElementById('contentType').value,
+                tone: document.getElementById('tone').value,
+                wordCount: parseInt(document.getElementById('wordCount').value),
+                model: document.getElementById('model').value
+            };
+
+            // Show loading, hide result
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('resultContainer').classList.remove('show', 'error', 'success');
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').textContent = '⏳ Generating...';
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                document.getElementById('loading').classList.remove('show');
+
+                // Show result
+                const resultContainer = document.getElementById('resultContainer');
+                resultContainer.classList.add('show', 'success');
+
+                document.getElementById('resultHeader').textContent = '✅ Content Generated Successfully!';
+
+                if (result.content) {
+                    document.getElementById('result').textContent = result.content;
+                } else {
+                    document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+                }
+
+                // Show metadata
+                if (result.metadata) {
+                    document.getElementById('metadata').innerHTML = `
+                        <strong>Metadata:</strong><br>
+                        Model: ${result.metadata.model || 'N/A'}<br>
+                        Tokens Used: ${result.metadata.tokens || 'N/A'}<br>
+                        Generated At: ${new Date(result.metadata.generatedAt).toLocaleString()}
+                    `;
+                }
+
+            } catch (error) {
+                // Hide loading
+                document.getElementById('loading').classList.remove('show');
+
+                // Show error
+                const resultContainer = document.getElementById('resultContainer');
+                resultContainer.classList.add('show', 'error');
+
+                document.getElementById('resultHeader').textContent = '❌ Error Occurred';
+                document.getElementById('result').textContent = `Error: ${error.message}\n\nPlease check:\n1. Is your N8N workflow active?\n2. Did you add OpenRouter API credentials?\n3. Is the webhook URL correct?`;
+                document.getElementById('metadata').textContent = '';
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('generateBtn').textContent = '✨ Generate Content';
+            }
+        });
+    </script>
+</body>
+
+</html>
